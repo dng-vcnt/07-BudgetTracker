@@ -17,11 +17,14 @@
 
         vm.expenseList = [];
         vm.expenseSum = 0;
+        vm.rentSum = 0;
 
         // Functions
         vm.calculateDiff = calculateDiff;
         vm.calculateIncome = calculateIncome;
         vm.calculateExpense = calculateExpense;
+        vm.checkRent = checkRent;
+
         vm.resetIncome = resetIncome;
         vm.resetExpense = resetExpense;
 
@@ -46,9 +49,9 @@
                 "amt": vm.income.amt
             });
 
-            resetIncome();
+            checkRent();
             calculateDiff();
-
+            resetIncome();
         }
 
         // Add to expense sum, push to expense array
@@ -59,8 +62,27 @@
                 "amt": vm.expense.amt
             });
 
-            resetExpense();
+            checkRent();
             calculateDiff();
+            resetExpense();
+        }
+
+        function checkRent() {
+            // Check substring for 'house', 'mortgage', or 'rent'
+            var rentTxt = angular.lowercase(vm.expense.des);
+            if (rentTxt.indexOf("house") !== -1 ||
+                rentTxt.indexOf("rent") !== -1 ||
+                rentTxt.indexOf("mortgage") !== -1) {
+                vm.rentSum += vm.expense.amt;
+            }
+
+            // Check rent against 25% of total income
+            var quarterIncome = 0.25 * vm.incomeSum;
+            if (vm.rentSum > quarterIncome){
+                vm.exceedRentMsg = "User's house, rent, and/or mortgage expenses exceed 25% of income.";
+            } else {
+                vm.exceedRentMsg = "";
+            }
         }
 
         function resetIncome() {
